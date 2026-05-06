@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Sessões Terapia (Brincadeira)</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 20px;
+    background: #f5f5f5;
+}
+
+h1 {
+    text-align: center;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+input, select, button {
+    padding: 8px;
+    margin: 5px;
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+.row > div {
+    flex: 1;
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background: #eee;
+}
+
+.delete {
+    background: red;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Registro de Sessões</h1>
+
+<!-- FORM -->
+<div class="row">
+    <div>
+        <label>Problemática</label>
+        <input id="problematica">
+    </div>
+
+    <div>
+        <label>Sessão</label>
+        <input id="sessao">
+    </div>
+</div>
+
+<div class="row">
+    <div>
+        <label>Data</label>
+        <input type="date" id="data">
+    </div>
+
+    <div>
+        <label>Duração</label>
+        <input type="time" id="duracao">
+    </div>
+</div>
+
+<!-- SITUAÇÃO -->
+<label>Situação</label>
+<select id="situacaoSelect" onchange="toggleSituacao()">
+    <option value="">Selecione</option>
+    <option>Conflito no trabalho</option>
+    <option>Ansiedade</option>
+    <option>Estresse</option>
+    <option>Outro</option>
+</select>
+<input id="situacaoInput" placeholder="Escreva a situação" style="display:none">
+
+<!-- OBJETIVO -->
+<label>Objetivo</label>
+<select id="objetivoSelect" onchange="toggleObjetivo()">
+    <option value="">Selecione</option>
+    <option>Reduzir ansiedade</option>
+    <option>Melhorar comunicação</option>
+    <option>Controlar estresse</option>
+    <option>Outro</option>
+</select>
+<input id="objetivoInput" placeholder="Escreva o objetivo" style="display:none">
+
+<!-- RESULTADO -->
+<label>Objetivo Alcançado</label>
+<select id="resultado">
+    <option value="">Selecione</option>
+    <option>Sim</option>
+    <option>Não</option>
+</select>
+
+<label>Pseudoterapeuta</label>
+<input id="terapeuta">
+
+<button onclick="salvar()">Salvar Sessão</button>
+
+<!-- TABELA -->
+<table id="tabela">
+    <thead>
+        <tr>
+            <th>Problemática</th>
+            <th>Sessão</th>
+            <th>Data</th>
+            <th>Duração</th>
+            <th>Situação</th>
+            <th>Objetivo</th>
+            <th>Resultado</th>
+            <th>Terapeuta</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+</div>
+
+<script>
+
+// alternar campo livre
+function toggleSituacao() {
+    let select = document.getElementById("situacaoSelect").value;
+    document.getElementById("situacaoInput").style.display = (select === "Outro") ? "block" : "none";
+}
+
+function toggleObjetivo() {
+    let select = document.getElementById("objetivoSelect").value;
+    document.getElementById("objetivoInput").style.display = (select === "Outro") ? "block" : "none";
+}
+
+// salvar
+function salvar() {
+
+    let situacao = document.getElementById("situacaoSelect").value;
+    if (situacao === "Outro") {
+        situacao = document.getElementById("situacaoInput").value;
+    }
+
+    let objetivo = document.getElementById("objetivoSelect").value;
+    if (objetivo === "Outro") {
+        objetivo = document.getElementById("objetivoInput").value;
+    }
+
+    let dados = {
+        problematica: document.getElementById("problematica").value,
+        sessao: document.getElementById("sessao").value,
+        data: document.getElementById("data").value,
+        duracao: document.getElementById("duracao").value,
+        situacao: situacao,
+        objetivo: objetivo,
+        resultado: document.getElementById("resultado").value,
+        terapeuta: document.getElementById("terapeuta").value
+    };
+
+    let lista = JSON.parse(localStorage.getItem("dados")) || [];
+    lista.push(dados);
+
+    localStorage.setItem("dados", JSON.stringify(lista));
+
+    carregar();
+}
+
+// carregar tabela
+function carregar() {
+    let lista = JSON.parse(localStorage.getItem("dados")) || [];
+    let tbody = document.querySelector("#tabela tbody");
+    tbody.innerHTML = "";
+
+    lista.forEach((item, i) => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.problematica}</td>
+                <td>${item.sessao}</td>
+                <td>${item.data}</td>
+                <td>${item.duracao}</td>
+                <td>${item.situacao}</td>
+                <td>${item.objetivo}</td>
+                <td>${item.resultado}</td>
+                <td>${item.terapeuta}</td>
+                <td><button class="delete" onclick="excluir(${i})">X</button></td>
+            </tr>
+        `;
+    });
+}
+
+// excluir
+function excluir(i) {
+    let lista = JSON.parse(localStorage.getItem("dados"));
+    lista.splice(i,1);
+    localStorage.setItem("dados", JSON.stringify(lista));
+    carregar();
+}
+
+carregar();
+
+</script>
+
+</body>
+</html>
