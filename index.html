@@ -10,6 +10,7 @@ body {
     background: #f5f5f5;
     margin: 20px;
 }
+
 .container {
     max-width: 900px;
     margin: auto;
@@ -17,24 +18,40 @@ body {
     padding: 20px;
     border-radius: 10px;
 }
+
 input, select, button {
     width: 100%;
     padding: 8px;
     margin: 5px 0;
+    box-sizing: border-box;
 }
+
 button {
     background: green;
     color: white;
     border: none;
+    cursor: pointer;
+    font-weight: bold;
 }
+
 table {
     width: 100%;
     margin-top: 20px;
     border-collapse: collapse;
 }
+
 td, th {
     border: 1px solid #ccc;
-    padding: 5px;
+    padding: 6px;
+    text-align: left;
+}
+
+th {
+    background: #eee;
+}
+
+.delete {
+    background: red;
 }
 </style>
 </head>
@@ -54,6 +71,9 @@ td, th {
 <select id="situacao">
     <option>Conflito no trabalho</option>
     <option>Ansiedade</option>
+    <option>Estresse</option>
+    <option>Conflito familiar</option>
+    <option>Dificuldade de comunicação</option>
     <option>Outro</option>
 </select>
 <input id="situacaoLivre" placeholder="Se outro, escreva aqui">
@@ -62,6 +82,9 @@ td, th {
 <select id="objetivo">
     <option>Reduzir ansiedade</option>
     <option>Melhorar comunicação</option>
+    <option>Controlar estresse</option>
+    <option>Resolver conflito</option>
+    <option>Organizar pensamentos</option>
     <option>Outro</option>
 </select>
 <input id="objetivoLivre" placeholder="Se outro, escreva aqui">
@@ -72,21 +95,22 @@ td, th {
     <option>Não</option>
 </select>
 
-<input id="terapeuta" placeholder="Pseudoterapeuta">
+<input id="pseudoterapeuta" placeholder="Pseudoterapeuta">
 
 <button onclick="salvar()">Salvar</button>
 
 <table>
 <thead>
 <tr>
-<th>Problema</th>
+<th>Problemática</th>
 <th>Sessão</th>
 <th>Data</th>
 <th>Duração</th>
 <th>Situação</th>
 <th>Objetivo</th>
-<th>Resultado</th>
-<th>Terapeuta</th>
+<th>Objetivo Alcançado</th>
+<th>Pseudoterapeuta</th>
+<th>Ação</th>
 </tr>
 </thead>
 <tbody id="tabela"></tbody>
@@ -107,42 +131,61 @@ function salvar() {
     }
 
     let dados = {
-        problema: document.getElementById("problematica").value,
+        problematica: document.getElementById("problematica").value,
         sessao: document.getElementById("sessao").value,
         data: document.getElementById("data").value,
         duracao: document.getElementById("duracao").value,
         situacao: situacao,
         objetivo: objetivo,
         resultado: document.getElementById("resultado").value,
-        terapeuta: document.getElementById("terapeuta").value
+        pseudoterapeuta: document.getElementById("pseudoterapeuta").value
     };
 
-    let lista = JSON.parse(localStorage.getItem("dados")) || [];
+    let lista = JSON.parse(localStorage.getItem("dadosTerapia")) || [];
     lista.push(dados);
-    localStorage.setItem("dados", JSON.stringify(lista));
+    localStorage.setItem("dadosTerapia", JSON.stringify(lista));
 
     carregar();
+    limparCampos();
 }
 
 function carregar() {
-    let lista = JSON.parse(localStorage.getItem("dados")) || [];
+    let lista = JSON.parse(localStorage.getItem("dadosTerapia")) || [];
     let tabela = document.getElementById("tabela");
     tabela.innerHTML = "";
 
-    lista.forEach(item => {
+    lista.forEach((item, index) => {
         tabela.innerHTML += `
         <tr>
-        <td>${item.problema}</td>
-        <td>${item.sessao}</td>
-        <td>${item.data}</td>
-        <td>${item.duracao}</td>
-        <td>${item.situacao}</td>
-        <td>${item.objetivo}</td>
-        <td>${item.resultado}</td>
-        <td>${item.terapeuta}</td>
+            <td>${item.problematica || ""}</td>
+            <td>${item.sessao || ""}</td>
+            <td>${item.data || ""}</td>
+            <td>${item.duracao || ""}</td>
+            <td>${item.situacao || ""}</td>
+            <td>${item.objetivo || ""}</td>
+            <td>${item.resultado || ""}</td>
+            <td>${item.pseudoterapeuta || ""}</td>
+            <td><button class="delete" onclick="excluir(${index})">Excluir</button></td>
         </tr>
         `;
     });
+}
+
+function excluir(index) {
+    let lista = JSON.parse(localStorage.getItem("dadosTerapia")) || [];
+    lista.splice(index, 1);
+    localStorage.setItem("dadosTerapia", JSON.stringify(lista));
+    carregar();
+}
+
+function limparCampos() {
+    document.getElementById("problematica").value = "";
+    document.getElementById("sessao").value = "";
+    document.getElementById("data").value = "";
+    document.getElementById("duracao").value = "";
+    document.getElementById("situacaoLivre").value = "";
+    document.getElementById("objetivoLivre").value = "";
+    document.getElementById("pseudoterapeuta").value = "";
 }
 
 carregar();
